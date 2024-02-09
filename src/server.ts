@@ -1,5 +1,6 @@
 import cookieParser from "cookie-parser"
 import express from "express"
+import morgan from "morgan"
 import http from "http"
 import path from "path"
 import fs from "fs"
@@ -24,6 +25,7 @@ class Server {
         this.app = express()
         this.useMiddlewares()
         this.useRoutes()
+        this.useLogger()
     }
 
     private useMiddlewares() {
@@ -34,6 +36,10 @@ class Server {
 
     private useRoutes() {
         handleRoutes(this.app)
+    }
+
+    private useLogger() {
+        this.app.use(morgan("dev"))
     }
 
     public loadRoutesAndControllers() {
