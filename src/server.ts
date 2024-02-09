@@ -4,6 +4,8 @@ import http from "http"
 import path from "path"
 import fs from "fs"
 
+import handleRoutes from "./utils/handle-routes"
+
 export type ServerOptions = {
     port?: number
 }
@@ -21,12 +23,17 @@ class Server {
         this.port = port || 3000
         this.app = express()
         this.useMiddlewares()
+        this.useRoutes()
     }
 
     private useMiddlewares() {
         this.app.use(express.json())
         this.app.use(express.urlencoded({ extended: false }))
         this.app.use(cookieParser())
+    }
+
+    private useRoutes() {
+        handleRoutes(this.app)
     }
 
     public loadRoutesAndControllers() {
@@ -67,6 +74,8 @@ class Server {
                     return resolve(null)
                 })
             }
+
+            return resolve(null)
         })
     }
 }

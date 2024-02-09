@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node ./src/index"
+    "dev": "ts-node ./src/index",
+    "dev:reload": "nodemon ./src/index",
+    "start": "node ./build/index.js"
   },
   "keywords": [],
   "author": "",
