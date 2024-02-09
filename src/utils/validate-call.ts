@@ -17,7 +17,7 @@ function validateCall<T extends any[], U>(
                 return originalMethod.apply(this, validatedArgs)
             } catch(error: any) {
                 if (errorHandler) {
-                   errorHandler(error) 
+                   errorHandler(error)
                 } else {
                     throw error
                 }
