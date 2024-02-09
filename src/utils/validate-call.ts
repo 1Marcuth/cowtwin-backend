@@ -15,7 +15,7 @@ function validateCall<T extends any[], U>(
             try {
                 const validatedArgs = schema.parse(args)
                 return originalMethod.apply(this, validatedArgs)
-            } catch (error: any) {
+            } catch(error: any) {
                 errorHandler(error)
             }
         }
