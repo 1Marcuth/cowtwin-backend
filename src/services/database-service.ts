@@ -1,4 +1,5 @@
 import admin from "firebase-admin"
+import crypto from "node:crypto"
 import dotenv from "dotenv"
 import bcrypt from "bcrypt"
 
@@ -61,7 +62,7 @@ class DatabaseService {
             .where(admin.firestore.FieldPath.documentId(), "in", ids)
             .get()
 
-        messagesSnapshot.forEach((doc) => {
+        messagesSnapshot.forEach(doc => {
             const messageData = {
                 id: doc.id,
                 ...doc.data()
@@ -108,7 +109,8 @@ class DatabaseService {
     public async createUser({ password, createdAt }: CreateUserOptions): Promise<CreateUserResult> {
         const hashedPassword = await bcrypt.hash(password, saltRounds)
         const usersCollection = this.firestore.collection("users")
-        const userDocument = usersCollection.doc()
+        const userId = crypto.randomUUID()
+        const userDocument = usersCollection.doc(userId)
         const currentTime = Date.now()
 
         if (createdAt > currentTime) {
@@ -121,7 +123,7 @@ class DatabaseService {
         })
 
         const result = {
-            id: userDocument.id,
+            id: userId,
             createdAt: createdAt,
             writeResult: writeResult
         }
@@ -177,7 +179,8 @@ class DatabaseService {
     @validateCall(createMessageSchema)
     public async createMessage({ authorId, parentId, createdAt, content }: CreateMessageOptions): Promise<CreateMessageResult> {
         const messagesCollection = this.firestore.collection("messages")
-        const messageDocument = messagesCollection.doc()
+        const messageId = crypto.randomUUID()
+        const messageDocument = messagesCollection.doc(messageId)
 
         const isValidAuthorId = await this.isValidUserId(authorId)
         const currentTime = Date.now()
@@ -208,7 +211,7 @@ class DatabaseService {
         })
 
         const result: CreateMessageResult = {
-            id: messageDocument.id,
+            id: messageId,
             authorId: authorId,
             parentId: parentId,
             createdAt: createdAt,

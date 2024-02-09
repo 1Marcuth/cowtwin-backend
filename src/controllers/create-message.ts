@@ -2,7 +2,7 @@ import { Controller, CreateMessageOptions } from "../types"
 import DatabaseService from "../services/database-service"
 
 const controller: Controller = (req, res) => {
-    const data = req.body
+    const data = req.body as CreateMessageOptions
 
     try {
         const databaseService = new DatabaseService()

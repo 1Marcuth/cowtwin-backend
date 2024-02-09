@@ -1,6 +1,6 @@
 import { Router } from "express"
 
-import authenticationMiddleware from "../middlewares/auth-user"
+import authenticationMiddleware from "../middlewares/authentication"
 import validatorMiddleware from "../middlewares/validator"
 import controller from "../controllers/create-message"
 import schema from "../schemas/create-message"
