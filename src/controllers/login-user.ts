@@ -3,9 +3,9 @@ import { Controller, LoginUserOptions } from "../types"
 
 const controller: Controller = async (req, res) => {
     const data = req.body as LoginUserOptions
-    const databaseService = new DatabaseService()
-
+    
     try {
+        const databaseService = new DatabaseService()
         const result = await databaseService.loginUser(data)
         
         if (result.isValidLogin && result.userId) {
