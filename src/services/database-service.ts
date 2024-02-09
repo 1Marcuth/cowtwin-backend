@@ -18,6 +18,7 @@ import type {
     CreateUserResult,
     GetUserResult,
     CreateMessageResult,
+    LoginUserResult,
     Message
 } from "../types"
 
@@ -129,7 +130,7 @@ class DatabaseService {
     }
 
     @validateCall(loginUserSchema)
-    public async loginUser({ password }: LoginUserOptions) {
+    public async loginUser({ password }: LoginUserOptions): Promise<LoginUserResult> {
         const usersCollection = this.firestore.collection("users")
 
         for (const userId in await usersCollection.listDocuments()) {
@@ -143,12 +144,15 @@ class DatabaseService {
                 const passwordMatch = await bcrypt.compare(password, hashedPassword)
         
                 if (passwordMatch) {
-                    return true
+                    return {
+                        userId: userId,
+                        isValidLogin: true,
+                    }
                 }
             }
         }
 
-        return false
+        return { isValidLogin: false }
     }
 
     @validateCall(getUserSchema)

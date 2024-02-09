@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser"
 import express from "express"
 import http from "http"
 import path from "path"
@@ -19,6 +20,13 @@ class Server {
     public constructor({ port }: ServerOptions = defaultServerOptions) {
         this.port = port || 3000
         this.app = express()
+        this.useMiddlewares()
+    }
+
+    private useMiddlewares() {
+        this.app.use(express.json())
+        this.app.use(express.urlencoded({ extended: false }))
+        this.app.use(cookieParser())
     }
 
     public loadRoutesAndControllers() {

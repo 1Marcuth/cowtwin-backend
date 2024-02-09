@@ -27,6 +27,11 @@ export type CreateMessageResult = CreateMessageOptions & {
     writeResult: FirebaseFirestore.WriteResult
 }
 
+export type LoginUserResult = {
+    userId?: string
+    isValidLogin: boolean
+}
+
 export type Message = CreateMessageOptions & {
     id: string
 }
