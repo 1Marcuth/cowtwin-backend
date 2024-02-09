@@ -61,7 +61,11 @@ class Server {
 
     public start() {
         return new Promise((resolve, reject) => {
-            this.server = this.app.listen(this.port, () => resolve(null))
+            this.server = this.app.listen(this.port, () => {
+                console.log(`> [app] The server is listening on: http://localhost:${this.port}/`)
+                return resolve(null)
+            })
+
             this.server.on("error", reject)
         })
     }
@@ -71,9 +75,12 @@ class Server {
             if (this.server) {
                 this.server.close((error) => {
                     if (error) return reject(error)
+                    console.log("> [app] The server has been closed successfully!")
                     return resolve(null)
                 })
             }
+
+            console.log("> [app] The server has been closed successfully!")
 
             return resolve(null)
         })
