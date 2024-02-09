@@ -7,7 +7,7 @@ import schema from "../schemas/get-messages"
 
 const router = Router()
 
-router.post(
+router.get(
     "/get-messages",
     authenticationMiddleware(true),
     validatorMiddleware(schema),
