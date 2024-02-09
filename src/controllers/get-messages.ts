@@ -10,6 +10,8 @@ const controller: Controller = async (req, res) => {
         const result = await databaseService.getMessages(data)
         return res.status(200).send(result)
     } catch(error) {
+        console.error(`> [Internal Server Error] ${error}`)
+
         return res.status(500).send({
             message: "Internal server error"
         })

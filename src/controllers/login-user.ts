@@ -9,8 +9,8 @@ const controller: Controller = async (req, res) => {
         const result = await databaseService.loginUser(data)
         
         if (result.isValidLogin && result.userId) {
-            res.cookie("sessionId", result.userId, { httpOnly: true })
-            return res.status(200).send(result)
+            const session = await databaseService.createSession(result.userId)
+            return res.status(200).send({ ...result, sessionId: session.id })
         }
 
         return res.status(404).send({
@@ -18,6 +18,8 @@ const controller: Controller = async (req, res) => {
             isValidLogin: false
         })
     } catch(error: any) {
+        console.error(`> [Internal Server Error] ${error}`)
+
         return res.status(500).send({
             message: "Internal server error",
             isValidLogin: false

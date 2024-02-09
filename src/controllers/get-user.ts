@@ -16,6 +16,8 @@ const controller: Controller = async (req, res) => {
             message: "User not found"
         })
     } catch(error) {
+        console.error(`> [Internal Server Error] ${error}`)
+
         return res.status(500).send({
             message: "Internal server error"
         })

@@ -7,7 +7,7 @@ import schema from "../schemas/get-user"
 
 const router = Router()
 
-router.post(
+router.get(
     "/get-user",
     authenticationMiddleware(true),
     validatorMiddleware(schema),

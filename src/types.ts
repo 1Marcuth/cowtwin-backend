@@ -27,6 +27,19 @@ export type CreateMessageResult = CreateMessageOptions & {
     writeResult: Omit<FirebaseFirestore.WriteResult, "isEqual">
 }
 
+export type CreateSessionResult = {
+    id: string
+    userId: string
+    writeResult: Omit<FirebaseFirestore.WriteResult, "isEqual">
+}
+
+export type GetSessionResult = {
+    id: string
+    userId: string
+    createdAt: number
+    expiresAt: number
+}
+
 export type LoginUserResult = {
     userId?: string
     isValidLogin: boolean

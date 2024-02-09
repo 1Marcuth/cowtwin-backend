@@ -20,7 +20,9 @@ import type {
     CreateUserResult,
     GetUserResult,
     CreateMessageResult,
+    CreateSessionResult,
     LoginUserResult,
+    GetSessionResult,
     Message
 } from "../types"
 
@@ -110,6 +112,54 @@ class DatabaseService {
         } as Message))
     
         return messages
+    }
+    
+    @validateCall(z.array(z.string().uuid()))
+    public async createSession(userId: string): Promise<CreateSessionResult> {
+        const isValidUserId = await this.isValidUserId(userId)
+
+        if (!isValidUserId) {
+            throw new Error(`Not valid user id: ${userId}`)
+        }
+
+        const sessionsCollection = this.firestore.collection("sessions")
+        const sessionId = crypto.randomUUID()
+        const createdAt = Date.now()
+        const expiresAt = createdAt + ((86400 * 1000) * 30)
+        const sessionDocument = sessionsCollection.doc(sessionId)
+        
+        const result = await sessionDocument.set({
+            userId: userId,
+            createdAt: createdAt,
+            expiresAt: expiresAt
+        })
+
+        return {
+            id: sessionId,
+            userId: userId,
+            writeResult: {
+                writeTime: result.writeTime
+            }
+        }
+    }
+
+    @validateCall(z.array(z.string().uuid()))
+    public async getSession(id: string): Promise<GetSessionResult | null> {
+        const sessionsCollection = await this.firestore.collection("sessions")
+
+        const sessionDocument = sessionsCollection.doc(id)
+        const sessionSnapshot = await sessionDocument.get()
+        
+        if (!sessionSnapshot.exists) {
+            return null
+        }
+
+        const sessionData = {
+            id: id,
+            ...sessionSnapshot.data()
+        } as GetSessionResult
+
+        return sessionData
     }
 
     @validateCall(z.array(createUserSchema))
