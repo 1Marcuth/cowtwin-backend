@@ -2,6 +2,7 @@ import admin from "firebase-admin"
 import crypto from "node:crypto"
 import dotenv from "dotenv"
 import bcrypt from "bcrypt"
+import { z } from "zod"
 
 import createMessageSchema from "../schemas/create-message"
 import createUserSchema from "../schemas/create-user"
@@ -28,18 +29,20 @@ dotenv.config()
 const credentials = JSON.parse(process.env.FIREBASE_CREDENTIALS as string)
 const saltRounds = Number(process.env.SALT_ROUNDS)
 
+const app = admin.initializeApp({
+    credential: admin.credential.cert(credentials)
+})
+
 class DatabaseService {
     private app: admin.app.App
     private firestore: admin.firestore.Firestore
 
     public constructor() {
-        this.app = admin.initializeApp({
-            credential: admin.credential.cert(credentials)
-        })
-
+        this.app = app
         this.firestore = this.app.firestore()
     }
 
+    @validateCall(z.array(z.string()))
     private async isValidUserId(id: string): Promise<boolean> {
         const usersCollection = this.firestore.collection("users")
         const userDocument = usersCollection.doc(id)
@@ -47,6 +50,7 @@ class DatabaseService {
         return userSnapshot.exists
     }
 
+    @validateCall(z.array(z.string()))
     private async isValidMessageId(id: string): Promise<boolean> {
         const messagesCollection = this.firestore.collection("messages")
         const messageDocument = messagesCollection.doc(id)
@@ -54,6 +58,7 @@ class DatabaseService {
         return messageSnapshot.exists
     }
 
+    @validateCall(z.array(z.array(z.string())))
     private async getMessagesByIds(ids: string[]): Promise<Message[]> {
         const messages: Message[] = []
 
@@ -74,6 +79,7 @@ class DatabaseService {
         return messages
     }
 
+    @validateCall(z.array(z.number()))
     private async getLastMessages(count: number): Promise<Message[]> {
         const messagesCollection = this.firestore.collection("messages")
     
@@ -90,6 +96,7 @@ class DatabaseService {
         return messages
     }
     
+    @validateCall(z.array(z.number()))
     private async getTopMessages(count: number): Promise<Message[]> {
         const messagesCollection = this.firestore.collection("messages")
         const querySnapshot = await messagesCollection
@@ -105,7 +112,7 @@ class DatabaseService {
         return messages
     }
 
-    @validateCall(createUserSchema)
+    @validateCall(z.array(createUserSchema))
     public async createUser({ password, createdAt }: CreateUserOptions): Promise<CreateUserResult> {
         const hashedPassword = await bcrypt.hash(password, saltRounds)
         const usersCollection = this.firestore.collection("users")
@@ -125,39 +132,41 @@ class DatabaseService {
         const result = {
             id: userId,
             createdAt: createdAt,
-            writeResult: writeResult
+            writeResult: {
+                writeTime: writeResult.writeTime
+            }
         }
 
         return result
     }
 
-    @validateCall(loginUserSchema)
+    @validateCall(z.array(loginUserSchema))
     public async loginUser({ password }: LoginUserOptions): Promise<LoginUserResult> {
         const usersCollection = this.firestore.collection("users")
 
-        for (const userId in await usersCollection.listDocuments()) {
-            const userDocument = usersCollection.doc(userId)
-            const userSnapshot = await userDocument.get()
+        try {
+            const userQuerySnapshot = await usersCollection.get()
 
-            if (userSnapshot.exists) {
-                const userData = userSnapshot.data() as CreateUserOptions
+            for (const userDoc of userQuerySnapshot.docs) {
+                const userData = userDoc.data() as CreateUserOptions
                 const hashedPassword = userData.password
-        
                 const passwordMatch = await bcrypt.compare(password, hashedPassword)
-        
+
                 if (passwordMatch) {
                     return {
-                        userId: userId,
-                        isValidLogin: true,
+                        userId: userDoc.id,
+                        isValidLogin: true
                     }
                 }
             }
-        }
 
-        return { isValidLogin: false }
+            return { isValidLogin: false }
+        } catch (error) {
+            return { isValidLogin: false }
+        }
     }
 
-    @validateCall(getUserSchema)
+    @validateCall(z.array(getUserSchema))
     public async getUser({ id }: GetUserOptions): Promise<GetUserResult | null> {
         const usersCollection = this.firestore.collection("users")
 
@@ -173,10 +182,13 @@ class DatabaseService {
             ...userSnapshot.data()
         } as GetUserResult
 
-        return userData
+        return {
+            id: userData.id,
+            createdAt: userData.createdAt
+        }
     }
 
-    @validateCall(createMessageSchema)
+    @validateCall(z.array(createMessageSchema))
     public async createMessage({ authorId, parentId, createdAt, content }: CreateMessageOptions): Promise<CreateMessageResult> {
         const messagesCollection = this.firestore.collection("messages")
         const messageId = crypto.randomUUID()
@@ -216,13 +228,15 @@ class DatabaseService {
             parentId: parentId,
             createdAt: createdAt,
             content: content,
-            writeResult: writeResult
+            writeResult: {
+                writeTime: writeResult.writeTime
+            }
         }
 
         return result
     }
 
-    @validateCall(getMessagesSchema)
+    @validateCall(z.array(getMessagesSchema))
     public async getMessages({ count, ids, mode }: GetMessagesOptions) {
         if (!ids || ids.length === 0) {
             if (!mode) {

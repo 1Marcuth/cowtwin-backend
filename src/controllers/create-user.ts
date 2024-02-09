@@ -6,9 +6,11 @@ const controller: Controller = async (req, res) => {
 
     try {
         const databaseService = new DatabaseService()
-        const result = databaseService.createUser(data)
-        return res.status(201).send(result)
+        const result = await databaseService.createUser(data)
+        return res.status(200).send(result)
     } catch(error) {
+        console.error(error)
+
         return res.status(500).send({
             message: "Internal server error"
         })

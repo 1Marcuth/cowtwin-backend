@@ -15,16 +15,16 @@ export type GetMessagesOptions = typeof getMessagesSchema["_output"]
 export type GetUserOptions = typeof getUserSchema["_output"]
 export type LoginUserOptions = typeof loginUserSchema["_output"]
 
-export type GetUserResult = CreateUserOptions & { id: string }
+export type GetUserResult = Omit<CreateUserOptions & { id: string }, "password">
 
 export type CreateUserResult = Omit<CreateUserOptions & {
     id: string
-    writeResult: FirebaseFirestore.WriteResult
+    writeResult: Omit<FirebaseFirestore.WriteResult, "isEqual">
 }, "password">
 
 export type CreateMessageResult = CreateMessageOptions & {
     id: string
-    writeResult: FirebaseFirestore.WriteResult
+    writeResult: Omit<FirebaseFirestore.WriteResult, "isEqual">
 }
 
 export type LoginUserResult = {

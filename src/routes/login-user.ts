@@ -8,7 +8,7 @@ import schema from "../schemas/login-user"
 const router = Router()
 
 router.post(
-    "/login",
+    "/login-user",
     authenticationMiddleware(false),
     validatorMiddleware(schema),
     controller

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node ./src/index",
-    "dev:reload": "nodemon ./src/index",
+    "dev:reload": "nodemon ./src/index.ts",
     "start": "node ./build/index.js"
   },
   "keywords": [],

@@ -1,13 +1,13 @@
 import { Controller, CreateMessageOptions } from "../types"
 import DatabaseService from "../services/database-service"
 
-const controller: Controller = (req, res) => {
+const controller: Controller = async (req, res) => {
     const data = req.body as CreateMessageOptions
 
     try {
         const databaseService = new DatabaseService()
-        const result = databaseService.createMessage(data)
-        return res.status(201).send(result)
+        const result = await databaseService.createMessage(data)
+        return res.status(200).send(result)
     } catch(error) {
         return res.status(500).send({
             message: "Internal server error"

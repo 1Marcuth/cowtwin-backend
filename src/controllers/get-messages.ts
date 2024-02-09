@@ -7,7 +7,7 @@ const controller: Controller = async (req, res) => {
 
     try {
         const databaseService = new DatabaseService()
-        const result = databaseService.getMessages(data)
+        const result = await databaseService.getMessages(data)
         return res.status(200).send(result)
     } catch(error) {
         return res.status(500).send({
