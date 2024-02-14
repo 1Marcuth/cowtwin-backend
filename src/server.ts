@@ -1,6 +1,7 @@
 import cookieParser from "cookie-parser"
 import express from "express"
 import morgan from "morgan"
+import cors from "cors"
 import http from "http"
 import path from "path"
 import fs from "fs"
@@ -32,6 +33,7 @@ class Server {
         this.app.use(express.json())
         this.app.use(express.urlencoded({ extended: false }))
         this.app.use(cookieParser())
+        this.app.use(cors({ origin: "*" }))
     }
 
     private useRoutes() {
